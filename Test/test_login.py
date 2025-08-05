@@ -1,26 +1,32 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import pytest
-import time
 
 @pytest.fixture
 def driver():
-    driver = webdriver.Chrome()  # or provide full path to chromedriver
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # run in headless mode for CI
+    driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(5)
     yield driver
     driver.quit()
 
 def test_valid_login(driver):
-    driver.get("https://example.com/login")  # Replace with real URL
-    driver.find_element(By.ID, "username").send_keys("admin")
-    driver.find_element(By.ID, "password").send_keys("password123")
-    driver.find_element(By.ID, "login-btn").click()
-    assert "dashboard" in driver.current_url
+    driver.get("https://www.saucedemo.com/")
+
+    driver.find_element(By.ID, "user-name").send_keys("standard_user")
+    driver.find_element(By.ID, "password").send_keys("secret_sauce")
+    driver.find_element(By.ID, "login-button").click()
+
+    # Assert we're on inventory page
+    assert "inventory" in driver.current_url
 
 def test_invalid_login(driver):
-    driver.get("https://example.com/login")
-    driver.find_element(By.ID, "username").send_keys("wrong")
-    driver.find_element(By.ID, "password").send_keys("wrongpass")
-    driver.find_element(By.ID, "login-btn").click()
-    error = driver.find_element(By.CLASS_NAME, "error").text
-    assert error == "Invalid credentials"
+    driver.get("https://www.saucedemo.com/")
+
+    driver.find_element(By.ID, "user-name").send_keys("invalid_user")
+    driver.find_element(By.ID, "password").send_keys("wrong_password")
+    driver.find_element(By.ID, "login-button").click()
+
+    error = driver.find_element(By.XPATH, "//h3[@data-test='error']").text
+    assert "Username and password do not match" in error or "do not match" in error
