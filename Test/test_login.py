@@ -13,20 +13,17 @@ def driver():
 
 def test_valid_login(driver):
     driver.get("https://www.saucedemo.com/")
-
     driver.find_element(By.ID, "user-name").send_keys("standard_user")
     driver.find_element(By.ID, "password").send_keys("secret_sauce")
     driver.find_element(By.ID, "login-button").click()
-
-    # Assert we're on inventory page
     assert "inventory" in driver.current_url
+
 
 def test_invalid_login(driver):
     driver.get("https://www.saucedemo.com/")
-
     driver.find_element(By.ID, "user-name").send_keys("invalid_user")
     driver.find_element(By.ID, "password").send_keys("wrong_password")
     driver.find_element(By.ID, "login-button").click()
-
     error = driver.find_element(By.XPATH, "//h3[@data-test='error']").text
-    assert "Username and password do not match" in error or "do not match" in error
+    assert "do not match" in error
+
